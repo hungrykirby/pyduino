@@ -5,11 +5,18 @@ import sys
 
 import arrange
 
-c = "0"
+c = "xx"
+console_input = sys.argv
+print(len(console_input))
+if len(console_input) == 2 and (console_input[1] == "test" or console_input[1] == "train"):
+    MODE = console_input[1]
+else:
+    sys.exit()
+
 
 def serial_loop():
     with serial.Serial('COM3',9600,timeout=0.1) as ser:
-        arra = arrange.Arrange(ser)
+        arra = arrange.Arrange(ser, MODE)
         try:
             while True:
                 s = ser.readline()

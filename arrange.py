@@ -9,11 +9,12 @@ class Arrange:
     ax = None
     n = np.arange(-0.5, 0.5, 0.01)
     plots_numbers = []
-    MODE = "train"
     count = 0
-    pattern = {"train": 30, "test":10}
-    def __init__(self, serial):
+    MODE = "test"
+    pattern = {"train": 100, "test":30}
+    def __init__(self, serial, MODE):
         self.ser = serial
+        self.MODE = MODE
 
     def plots(self, x, y, z):
         #figure(figsize=(8, 8))
@@ -31,7 +32,12 @@ class Arrange:
         if not os.path.exists(fn):
             os.makedirs(fn)
         #base_fn,ext = os.path.splitext(fn)
-        data_fn = os.path.join(self.MODE, fn_, str(self.count) + ".ceps")
+        count_str = "00"
+        if self.count < 10:
+            count_str = "0" + str(self.count)
+        else:
+            count_str = str(self.count)
+        data_fn = os.path.join(self.MODE, fn_, count_str + ".ceps")
         np.save(data_fn,ceps)
         self.count += 1
 
@@ -44,7 +50,7 @@ class Arrange:
                 self.bwn_a = True
                 self.plots_numbers = []
             elif self.bwn_a:
-                self.plots_numbers.append(matched_group)
+                self.plots_numbers.append(int(matched_group))
 
             if len(self.plots_numbers) == 3:
                 pl = self.plots_numbers
@@ -52,9 +58,8 @@ class Arrange:
                 self.bwn_a = False
                 self.ser.flushInput()
                 print(c, pl)
-                if self.count < self.pattern[self.MODE]:
-                    self.write_ceps(np.array(pl).np.array(pl), c)
-                    print(pl)
+                if self.count < self.pattern[self.MODE] and c.isdigit():
+                    self.write_ceps(np.array(pl).astype(np.int64), c)
                     print(np.array(pl).astype(np.int64))
         except KeyboardInterrupt:
             ser.close()
