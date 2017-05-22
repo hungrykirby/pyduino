@@ -5,16 +5,18 @@ import sys
 
 import arrange
 
-c = "xx"
+c = "1025"
+is_calibration = False
 console_input = sys.argv
 print(len(console_input))
-if len(console_input) == 2 and (console_input[1] == "test" or console_input[1] == "train"):
+if len(console_input) == 2:
     MODE = console_input[1]
 else:
     sys.exit()
 
 
 def serial_loop():
+    global is_calibration
     with serial.Serial('COM3',9600,timeout=0.1) as ser:
         arra = arrange.Arrange(ser, MODE)
         try:
@@ -22,9 +24,10 @@ def serial_loop():
                 s = ser.readline()
                 de = s.decode('utf-8')
                 m = re.match("\-*[\w]+", str(de))
+                #print(m)
                 if(m != None):
-                    #print(m.group())
-                    arra.fetch_three_numbers(m.group(), c)
+                    #print(is_calibration)
+                    is_calibration = arra.fetch_three_numbers(m.group(), is_calibration, c)
                 else:
                     pass
                     #print(type(m))
@@ -39,17 +42,18 @@ ser_loop.start()
 
 def main():
     global c
+    global is_calibration
     while True:
         tmp = input()
-        if c != tmp:
+        if tmp == "s":
+            sys.exit()
+        elif tmp == "r":
+            is_calibration = True
+        elif c != tmp:
             c = tmp
             print("c =", c)
         else:
-            pass
-        if tmp == 'a':
-            sys.exit()
-
-
+            print("else")
 
 if __name__ == "__main__":
     main()
